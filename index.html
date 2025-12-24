@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAG STYLE - Le Grand Show de Noël</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Poppins:wght@400;900&display=swap');
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #050510;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        canvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        #ui-layer {
+            position: absolute;
+            inset: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle, #0f172a 0%, #050510 100%);
+        }
+
+        .text-firework {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            color: #fbbf24;
+            font-family: 'Mountains of Christmas', cursive;
+            font-weight: 900;
+            text-shadow: 0 0 15px rgba(251, 191, 36, 0.8), 0 0 30px rgba(251, 191, 36, 0.4);
+            z-index: 50;
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Père Noël SVG Animé */
+        #santa-wrapper {
+            position: absolute;
+            bottom: 20px;
+            left: -200px;
+            z-index: 60;
+            width: 120px;
+            height: 160px;
+            pointer-events: none;
+            display: none;
+            transition: transform 0.1s linear;
+        }
+
+        .santa-body {
+            width: 100%;
+            height: 100%;
+            animation: santa-dance 0.6s infinite alternate ease-in-out;
+        }
+
+        @keyframes santa-dance {
+            from { transform: translateY(0) rotate(-5deg) scaleX(1); }
+            to { transform: translateY(-15px) rotate(5deg) scaleX(1.05); }
+        }
+
+        .blessing-word {
+            position: absolute;
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 1.8rem;
+            white-space: nowrap;
+            text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
+            z-index: 55;
+            animation: throwUp 3s ease-out forwards;
+        }
+
+        @keyframes throwUp {
+            0% { transform: translate(0, 0) scale(0.5); opacity: 1; }
+            100% { transform: translate(var(--tx), -400px) scale(1.5) rotate(var(--tr)); opacity: 0; }
+        }
+
+        .snow-ground {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(to top, #ffffff, transparent);
+            z-index: 2;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui-layer">
+        <div class="bg-slate-900/90 backdrop-blur-2xl p-10 rounded-[2.5rem] border-4 border-red-600 text-center shadow-[0_0_60px_rgba(220,38,38,0.4)] max-w-md w-full mx-4">
+            <div class="text-7xl mb-4">🎅</div>
+            <h1 class="text-4xl text-white font-black mb-2 tracking-tight">Show de Noël</h1>
+            <p class="text-red-400 font-bold mb-6 italic">by JAG STYLE</p>
+            
+            <input type="text" id="nameInp" placeholder="Entrez votre nom..." 
+                   class="w-full bg-white/10 border-2 border-white/20 rounded-2xl px-6 py-4 text-white text-lg focus:outline-none focus:border-red-500 mb-8 transition-all">
+            
+            <button id="goBtn" class="w-full bg-gradient-to-r from-red-600 via-red-500 to-rose-600 hover:scale-105 text-white font-black py-5 rounded-2xl text-xl shadow-2xl transition-all">
+                DÉMARRER LE SPECTACLE
+            </button>
+        </div>
+    </div>
+
+    <div id="sky-text-container"></div>
+    <div class="snow-ground"></div>
+    
+    <!-- Père Noël Complet en SVG -->
+    <div id="santa-wrapper">
+        <svg class="santa-body" viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg">
+            <!-- Jambes -->
+            <rect x="30" y="100" width="15" height="25" fill="#000" />
+            <rect x="55" y="100" width="15" height="25" fill="#000" />
+            <!-- Corps -->
+            <ellipse cx="50" cy="75" rx="35" ry="40" fill="#d42426" />
+            <rect x="45" y="40" width="10" height="70" fill="white" /> <!-- Fourrure milieu -->
+            <rect x="15" y="75" width="70" height="8" fill="black" /> <!-- Ceinture -->
+            <!-- Bras -->
+            <path d="M15 60 Q 0 80 10 90" stroke="#d42426" stroke-width="12" fill="none" stroke-linecap="round" />
+            <path d="M85 60 Q 100 80 90 90" stroke="#d42426" stroke-width="12" fill="none" stroke-linecap="round" />
+            <!-- Visage -->
+            <circle cx="50" cy="35" r="20" fill="#ffdbac" />
+            <path d="M30 35 Q 50 65 70 35" fill="white" /> <!-- Barbe -->
+            <circle cx="43" cy="30" r="2" fill="black" />
+            <circle cx="57" cy="30" r="2" fill="black" />
+            <circle cx="50" cy="35" r="4" fill="#f08080" /> <!-- Nez -->
+            <!-- Bonnet -->
+            <path d="M30 22 Q 50 -10 70 22" fill="#d42426" />
+            <circle cx="70" cy="15" r="6" fill="white" />
+            <rect x="30" y="20" width="40" height="6" rx="3" fill="white" />
+        </svg>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const ui = document.getElementById('ui-layer');
+        const nameInp = document.getElementById('nameInp');
+        const goBtn = document.getElementById('goBtn');
+        const skyContainer = document.getElementById('sky-text-container');
+        const santaWrapper = document.getElementById('santa-wrapper');
+
+        let width, height;
+        let particles = [];
+        let rockets = [];
+        let snowflakes = [];
+        let userName = "";
+
+        const blessings = ["Paix", "Amour", "Santé", "Bonheur", "Succès", "Victoire", "Bénédictions", "Sagesse", "Protection", "Prospérité"];
+        const colors = ['#ff0000', '#00ff00', '#ffffff', '#fbbf24', '#60a5fa'];
+
+        function init() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            snowflakes = Array(120).fill().map(() => ({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                r: Math.random() * 3 + 1,
+                s: Math.random() * 2 + 0.5
+            }));
+        }
+        window.addEventListener('resize', init);
+        init();
+
+        // Fonction pour faire parler/chanter le Père Noël
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'fr-FR';
+                utterance.rate = 0.9;
+                utterance.pitch = 0.8; // Voix plus grave pour le Père Noël
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        goBtn.onclick = () => {
+            userName = nameInp.value.trim() || "Ami";
+            ui.style.opacity = '0';
+            setTimeout(() => {
+                ui.style.display = 'none';
+                startShow();
+                speak(`Joyeux Noël ! Que cette journée de fête soit remplie de belles choses pour toi ${userName}`);
+            }, 800);
+        };
+
+        async function startShow() {
+            // 1. JAG STYLE (Haut)
+            const jag = "JAGSTYLE".split("");
+            for (let i = 0; i < jag.length; i++) {
+                const spacing = width / (jag.length + 1);
+                launchRocket(spacing * (i + 1), height * 0.2, {type: 'letter', val: jag[i]}, "#fbbf24");
+                await new Promise(r => setTimeout(r, 800));
+            }
+
+            // 2. Phrase de voeux (Départagée sur 2 lignes)
+            const line1 = ["souhaite", "un", "JOYEUX"];
+            const line2 = ["NOËL", "à", userName];
+
+            for (let i = 0; i < line1.length; i++) {
+                const x = (width / 4) * (i + 1);
+                launchRocket(x, height * 0.45, {type: 'word', val: line1[i]}, "#ff3333");
+                await new Promise(r => setTimeout(r, 1000));
+            }
+
+            for (let i = 0; i < line2.length; i++) {
+                const x = (width / 4) * (i + 1);
+                launchRocket(x, height * 0.65, {type: 'word', val: line2[i]}, "#33ff33");
+                await new Promise(r => setTimeout(r, 1000));
+            }
+
+            // 3. Phase Finale Cadeaux + Père Noël
+            startSantaShow();
+        }
+
+        function launchRocket(tx, ty, item, color) {
+            rockets.push({
+                x: tx + (Math.random() * 20 - 10),
+                y: height,
+                tx, ty,
+                item,
+                v: -Math.sqrt(height) * 0.38,
+                color: color || colors[Math.floor(Math.random() * colors.length)]
+            });
+        }
+
+        function startSantaShow() {
+            santaWrapper.style.display = 'block';
+            let santaX = -200;
+            let direction = 1; // 1: Droite, -1: Gauche
+            let speed = 4;
+
+            function moveSanta() {
+                santaX += speed * direction;
+                santaWrapper.style.left = santaX + 'px';
+                santaWrapper.style.transform = direction === 1 ? 'scaleX(1)' : 'scaleX(-1)';
+
+                // Lancer des bénédictions aléatoirement
+                if (Math.random() < 0.05) {
+                    const word = blessings[Math.floor(Math.random() * blessings.length)];
+                    createBlessing(santaX + 60, height - 150, word);
+                }
+
+                if (santaX > width + 100) direction = -1;
+                if (santaX < -200) direction = 1;
+
+                requestAnimationFrame(moveSanta);
+            }
+            moveSanta();
+
+            // Bouquet final en continu
+            setInterval(() => {
+                if (Math.random() < 0.3) {
+                    launchRocket(Math.random()*width, Math.random()*height*0.7, {type:'gift'}, null);
+                }
+            }, 600);
+        }
+
+        function createBlessing(x, y, text) {
+            const div = document.createElement('div');
+            div.className = 'blessing-word';
+            div.style.left = x + 'px';
+            div.style.top = y + 'px';
+            div.style.setProperty('--tx', (Math.random() * 200 - 100) + 'px');
+            div.style.setProperty('--tr', (Math.random() * 40 - 20) + 'deg');
+            div.innerText = text;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 3000);
+        }
+
+        function createPersistentText(x, y, text, color) {
+            const el = document.createElement('div');
+            el.className = 'text-firework';
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            el.style.color = color;
+            el.style.fontSize = text.length > 5 ? '2.5rem' : '4rem';
+            el.innerText = text;
+            skyContainer.appendChild(el);
+            setTimeout(() => {
+                el.style.opacity = '1';
+                el.style.transform = 'translate(-50%, -50%) scale(1.1)';
+            }, 50);
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(5, 5, 16, 0.2)';
+            ctx.fillRect(0, 0, width, height);
+
+            // Neige
+            ctx.fillStyle = "white";
+            snowflakes.forEach(s => {
+                s.y += s.s;
+                if (s.y > height) s.y = -10;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Rockets
+            for (let i = rockets.length - 1; i >= 0; i--) {
+                const r = rockets[i];
+                r.y += r.v;
+                r.v += 0.15;
+                ctx.beginPath();
+                ctx.arc(r.x, r.y, 3, 0, Math.PI * 2);
+                ctx.fillStyle = "white";
+                ctx.fill();
+
+                if (r.v >= 0 || r.y <= r.ty) {
+                    explode(r);
+                    rockets.splice(i, 1);
+                }
+            }
+
+            // Particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.vx *= 0.95; p.vy *= 0.95; p.vy += 0.12;
+                p.x += p.vx; p.y += p.vy; p.a -= 0.012;
+                ctx.save();
+                ctx.globalAlpha = p.a;
+                if (p.emoji) {
+                    ctx.font = "24px Arial";
+                    ctx.fillText(p.emoji, p.x, p.y);
+                } else {
+                    ctx.fillStyle = p.c;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.restore();
+                if (p.a <= 0) particles.splice(i, 1);
+            }
+            requestAnimationFrame(animate);
+        }
+
+        function explode(r) {
+            if (r.item.type !== 'gift') {
+                createPersistentText(r.tx, r.ty, r.item.val, r.color);
+            }
+            const emoji = ["🎁", "🎄", "⭐", "🤶", "🍪"][Math.floor(Math.random()*5)];
+            for (let i = 0; i < 40; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 7 + 2;
+                particles.push({
+                    x: r.tx, y: r.ty,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    c: r.color, a: 1,
+                    emoji: Math.random() > 0.8 ? emoji : null
+                });
+            }
+        }
+
+        animate();
+    </script>
+</body>
+</html>
+
